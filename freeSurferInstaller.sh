@@ -1,0 +1,274 @@
+#!/bin/bash
+
+# (WSL) FreeSurfer Installer -- Debian/Ubuntu Windows Subsystem for Linux FreeSurfer Installation Tool
+# Automated installer to install and run FreeSurfer on Windows Subsystem for Linux by use of an X server.
+
+set -e
+
+## Functions
+
+
+#Pre. install - check to see if Xming X serve has been downloaded and installed
+
+xmingCheck() {
+
+echo 'Xming X server must be downloaded and installed on your windows system to begin installer'
+read -p 'Have you downloaded Xming X server? y/n? :' xmingResponse
+
+}
+
+#1. Update and upgrade distribution
+
+update()  {
+
+echo "Starting system update..."
+sudo apt update && sudo apt upgrade
+
+}
+
+#2. Install required libraries
+
+libInstaller() {
+
+echo "Installing requried librairies"
+sudo apt-get install tcsh libfreetype6 libglu1-mesa libfontconfig1 libxrender1 libsm6 libxt6
+
+}
+
+# DISPLAY environment variable instructs the X client (the application program that runs on a Graphical User Interface)
+# which X server (a program that handles all acess to the graphic cards, display screens and input devices (such as the
+# keyboard and mouse) for the Graphical User Interfaces) to connect to by default.
+
+#3. Set the DISPLAY environment variable in the Ubuntu bash shell
+
+setDisplay() {
+
+echo "Setting the DISPLAY environment variable so it instructs the X client which X server to connect to by default."
+export DISPLAY=localhost:0.0
+
+}
+
+# In the Ubuntu Bash terminal under Windows, it is also possible to get the GUI environment from a remote server like in
+# Linux, with command ssh -X
+
+#4. To enable X server, install SSH, XAUTH, XORG and edit the ssh_config file
+
+enableXServer() {
+
+echo "Installing commands SSH, XAUTH and XORG to initialise X server and ssh -X command..."
+sudo apt install ssh xauth xorg
+
+echo "Editing ssh_config file to enable ssh x11 forwarding..."
+echo -e '
+# This is the ssh client system-wide configuration file.  See
+# ssh_config(5) for more information.  This file provides defaults for
+# users, and the values can be changed in per-user configuration files
+# or on the command line.
+
+# Configuration data is parsed as follows:
+#  1. command line options
+#  2. user-specific file
+#  3. system-wide file
+# Any configuration value is only changed the first time it is set.
+# Thus, host-specific definitions should be at the beginning of the
+# configuration file, and defaults at the end.
+
+# Site-wide defaults for some commonly used options.  For a comprehensive
+# list of available options, their meanings and defaults, please see the
+# ssh_config(5) man page.
+
+Host *
+    ForwardAgent yes
+    ForwardX11 yes
+    ForwardX11Trusted yes
+    Port 22
+    Protocol 2
+    GSSAPIDelegateCredentials no
+      XauthLocation /usr/bin/xauth
+    SendEnv LANG LC_*
+    HashKnownHosts yes
+    GSSAPIAuthentication yes
+#   PasswordAuthentication yes
+#   HostbasedAuthentication no
+#   GSSAPIKeyExchange no
+#   GSSAPITrustDNS no
+#   BatchMode no
+#   CheckHostIP yes
+#   AddressFamily any
+#   ConnectTimeout 0
+#   StrictHostKeyChecking ask
+#   IdentityFile ~/.ssh/id_rsa
+#   IdentityFile ~/.ssh/id_dsa
+#   IdentityFile ~/.ssh/id_ecdsa
+#   IdentityFile ~/.ssh/id_ed25519
+#   Ciphers aes128-ctr,aes192-ctr,aes256-ctr,aes128-cbc,3des-cbc
+#   MACs hmac-md5,hmac-sha1,umac-64@openssh.com
+#   EscapeChar ~
+#   Tunnel no
+#   TunnelDevice any:any
+#   PermitLocalCommand no
+#   VisualHostKey no
+#   ProxyCommand ssh -q -W %h:%p gateway.example.com
+#   RekeyLimit 1G 1h' | sudo tee /etc/ssh/ssh_config > /dev/null
+
+}
+
+#5. Enable x11 forwarding
+
+enableX11Forwarding() {
+
+echo "Enabling x11 forwarding..."
+ssh -X
+
+}
+
+#6. Download and install FreeSurfer software
+
+getFreeSurfer() {
+
+cd ~/
+#wget https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/6.0.0/freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz
+
+# Install FreeSurfer
+sudo tar -C /usr/local -xzvf freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz
+
+}
+
+
+#7. Define environment variable FREESURFER_HOME and source FreeSurfer setup script
+
+setupFreeSurfer() {
+
+export FREESURFER_HOME=/usr/local/freesurfer
+source $FREESURFER_HOME/SetUpFreeSurfer.sh
+
+}
+
+#7. A license key must be obtained to make the FreeSurfer tools operational
+
+licenseKeyCheck() {
+
+echo 'A license key must be obtained to make the FreeSurfer tools operational'
+read -p 'Have you obtained a license key? y/n? :' licenseKeyResponse
+
+if [ $licenseKeyResponse == "y" ] ; then
+        licenseFileMaker
+else
+        echo "License key must be obtained by registering for a license key at https://surfer.nmr.mgh.harvard.edu/registration.html"
+        licenseKeyCheck;
+fi
+
+}
+
+#8. The license key must be saved to a file called license.txt in the directory pointed to by the $FREESURFER_HOME environment variable.
+
+licenseFileMaker() {
+
+echo 'License key must be saved to a file called license.txt in the directory pointed to by the $FREESURFER_HOME environment variable.
+checking if license.txt exists...'
+
+test -f $FREESURFER_HOME/license.txt &&
+{ echo "license.txt exists."; licenseFileResponse="y"; } ||
+{ echo "license.txt does not exist, creating file..."; licenseFileResponse="n"; }
+
+if [ $licenseFileResponse == "n" ]; then
+        cd $FREESURFER_HOME/
+        sudo touch license.txt
+fi
+
+cat << _EOF_
+
+Menu: Have you copied the license key to the license.txt?
+
+Please press the number of your choice:
+
+        1 - Yes I have done it already.
+        2 - No, I still need to copy and paste the license key into the file.
+_EOF_
+
+read -n 1 -s choice;
+        case $choice in
+                1) echo "Then you are all done.";;
+                2) echo "Please open your emails, then open the license.txt file before copying (Ctrl+C) and pasting the contents (Ctrl+Shift+V) into the command line.";
+                   echo "-- Pressing Ctrl+d when you are done --"; cat >> license.txt; echo "You are all done";;
+                *) echo "Incorrect input";;
+        esac
+
+}
+
+#9. For installation examples to run correctly due to write permissions on original files, subject data must be copied to new directory.
+
+setupExampleEnvironment() {
+
+echo 'For installation examples to run correctly due to write permissions on original files, subject data must be copied
+ to new directory'
+echo 'Creating new directory called test_subjects in home directory...'
+cd ~/
+mkdir test_subjects
+
+# FreeSurfer requires an environment called SUBJECTS_DIR , set the SUBJECTS_DIR environment variable to the path of
+# test_subjects
+echo 'FreeSurfer requires an environment called SUBJECTS_DIR, setting SUBJECTS_DIR  environment variable test_subjects
+path...'
+export SUBJECTS_DIR=~/test_subjects
+
+}
+
+#10. For freeview to work correctly, libraries no longer included by default in the newer versions of Ubuntu must be installed.
+
+getMissingLibrairies() {
+
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get install libtool autoconf build-essential pkg-config automake zlib1g-dev
+
+cd ~/
+wget http://archive.ubuntu.com/ubuntu/pool/main/libp/libpng/libpng_1.2.54.orig.tar.xz
+
+tar xvf  libpng_1.2.54.orig.tar.xz
+
+cd libpng-1.2.54
+./autogen.sh
+./configure
+make -j8
+sudo make install
+
+}
+
+## Execution
+
+echo '(WSL) FreeSurfer Installer -- Debian/Ubuntu Windows Subsystem for Linux FreeSurfer Installation Tool
+Automated installer to install and run FreeSurfer on Windows Subsystem for Linux by use of an X server.'
+
+xmingCheck
+
+if [ $xmingResponse == "n" ] ; then
+        echo "Please download and install Xming X server on your Windows system from https://sourceforge.net/projects/xming/"
+        xmingCheck
+fi
+
+update
+libInstaller
+
+echo 'DISPLAY environment variable instructs the X client which X server to connect to by default.'
+
+setDisplay
+
+echo 'In the Ubuntu Bash terminal under Windows, it is also possible to get the GUI environment from a remote server like in Linux, with command ssh -X'
+echo 'In the Ubuntu Bash terminal under Windows, it is also possible to get the GUI environment from a remote server like in Linux, with command ssh -X'
+
+enableXServer
+getFreeSurfer
+
+echo 'Defining environment variable FREESURFER_HOME and sourcing FreeSurfer setup script...'
+
+setupFreeSurfer
+licenseKeyCheck
+setupExampleEnvironment
+getMissingLibrairies
+
+echo 'Installation complete'
+
+enableX11Forwarding
+
+exit
