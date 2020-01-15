@@ -220,7 +220,7 @@ read -n 1 -s choice;
         case $choice in
                 1) echo "Then you are all done.";;
                 2) echo "Please open your emails, then open the license.txt file before copying (Ctrl+C) and pasting the contents (Ctrl+Shift+V) into the command line.";
-                   echo "-- Pressing Ctrl+d when you are done --"; sudo cat >> license.txt; echo "You are all done";;
+                   echo "-- Pressing Ctrl+d when you are done --"; cat | sudo tee -a license.txt; echo "You are all done";;
                 *) echo "Incorrect input";;
         esac
 
