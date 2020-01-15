@@ -12,6 +12,9 @@ set -e
 
 xmingCheck() {
 
+echo 'xmingCheck
+
+'
 echo 'Xming X server must be downloaded and installed on your windows system to begin installer'
 read -p 'Have you downloaded Xming X server? y/n? :' xmingResponse
 
@@ -21,6 +24,9 @@ read -p 'Have you downloaded Xming X server? y/n? :' xmingResponse
 
 update()  {
 
+echo 'update
+
+'
 echo "Starting system update..."
 sudo apt update && sudo apt upgrade
 
@@ -30,8 +36,11 @@ sudo apt update && sudo apt upgrade
 
 libInstaller() {
 
+echo 'libInstaller
+
+'
 echo "Installing requried librairies"
-sudo apt-get install tcsh libfreetype6 libglu1-mesa libfontconfig1 libxrender1 libsm6 libxt6
+sudo apt-get install tcsh libfreetype6 libglu1-mesa libfontconfig1 libxrender1 libsm6 libxt6 libtool autoconf build-essential pkg-config automake zlib1g-dev
 
 }
 
@@ -43,6 +52,9 @@ sudo apt-get install tcsh libfreetype6 libglu1-mesa libfontconfig1 libxrender1 l
 
 setDisplay() {
 
+echo 'setDisplay
+
+'
 echo "Setting the DISPLAY environment variable so it instructs the X client which X server to connect to by default."
 export DISPLAY=localhost:0.0
 
@@ -55,6 +67,9 @@ export DISPLAY=localhost:0.0
 
 enableXServer() {
 
+echo 'enableXserver
+
+'
 echo "Installing commands SSH, XAUTH and XORG to initialise X server and ssh -X command..."
 sudo apt install ssh xauth xorg
 
@@ -117,6 +132,9 @@ Host *
 
 enableX11Forwarding() {
 
+echo 'enableX11Forwarding
+
+'
 echo "Enabling x11 forwarding..."
 ssh -X
 
@@ -126,8 +144,11 @@ ssh -X
 
 getFreeSurfer() {
 
+echo 'getFreeSurfer
+
+'
 cd ~/
-#wget https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/6.0.0/freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz
+wget https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/6.0.0/freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz
 
 # Install FreeSurfer
 sudo tar -C /usr/local -xzvf freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz
@@ -139,6 +160,9 @@ sudo tar -C /usr/local -xzvf freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.t
 
 setupFreeSurfer() {
 
+echo 'setupFreeSurfer
+
+'
 export FREESURFER_HOME=/usr/local/freesurfer
 source $FREESURFER_HOME/SetUpFreeSurfer.sh
 
@@ -148,6 +172,9 @@ source $FREESURFER_HOME/SetUpFreeSurfer.sh
 
 licenseKeyCheck() {
 
+echo 'licenseKeyCheck
+
+'
 echo 'A license key must be obtained to make the FreeSurfer tools operational'
 read -p 'Have you obtained a license key? y/n? :' licenseKeyResponse
 
@@ -164,6 +191,9 @@ fi
 
 licenseFileMaker() {
 
+echo 'licenseFileMaker
+
+'
 echo 'License key must be saved to a file called license.txt in the directory pointed to by the $FREESURFER_HOME environment variable.
 checking if license.txt exists...'
 
@@ -200,6 +230,9 @@ read -n 1 -s choice;
 
 setupExampleEnvironment() {
 
+echo 'setupExampleEnvironment
+
+'
 echo 'For installation examples to run correctly due to write permissions on original files, subject data must be copied
  to new directory'
 echo 'Creating new directory called test_subjects in home directory...'
@@ -218,14 +251,13 @@ export SUBJECTS_DIR=~/test_subjects
 
 getMissingLibrairies() {
 
-sudo apt-get update
-sudo apt-get upgrade
-sudo apt-get install libtool autoconf build-essential pkg-config automake zlib1g-dev
+echo 'getMissingLibrairies
 
+'
 cd ~/
 wget http://archive.ubuntu.com/ubuntu/pool/main/libp/libpng/libpng_1.2.54.orig.tar.xz
 
-tar xvf  libpng_1.2.54.orig.tar.xz
+sudo tar xvf  libpng_1.2.54.orig.tar.xz
 
 cd libpng-1.2.54
 ./autogen.sh
@@ -254,7 +286,6 @@ echo 'DISPLAY environment variable instructs the X client which X server to conn
 
 setDisplay
 
-echo 'In the Ubuntu Bash terminal under Windows, it is also possible to get the GUI environment from a remote server like in Linux, with command ssh -X'
 echo 'In the Ubuntu Bash terminal under Windows, it is also possible to get the GUI environment from a remote server like in Linux, with command ssh -X'
 
 enableXServer
