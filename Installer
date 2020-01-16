@@ -12,10 +12,10 @@ set -e
 
 xmingCheck() {
 
-echo 'xmingCheck
+
+echo 'Xming X server must be downloaded and installed on your windows system to begin installer
 
 '
-echo 'Xming X server must be downloaded and installed on your windows system to begin installer'
 read -p 'Have you downloaded Xming X server? y/n? :' xmingResponse
 
 }
@@ -24,7 +24,7 @@ read -p 'Have you downloaded Xming X server? y/n? :' xmingResponse
 
 update()  {
 
-echo 'update
+echo '
 
 '
 echo "Starting system update..."
@@ -36,7 +36,7 @@ sudo apt update && sudo apt upgrade
 
 libInstaller() {
 
-echo 'libInstaller
+echo '
 
 '
 echo "Installing requried librairies"
@@ -52,7 +52,7 @@ sudo apt-get install tcsh libfreetype6 libglu1-mesa libfontconfig1 libxrender1 l
 
 setDisplay() {
 
-echo 'setDisplay
+echo '
 
 '
 echo "Setting the DISPLAY environment variable so it instructs the X client which X server to connect to by default."
@@ -67,7 +67,7 @@ export DISPLAY=localhost:0.0
 
 enableXServer() {
 
-echo 'enableXserver
+echo '
 
 '
 echo "Installing commands SSH, XAUTH and XORG to initialise X server and ssh -X command..."
@@ -132,7 +132,7 @@ Host *
 
 enableX11Forwarding() {
 
-echo 'enableX11Forwarding
+echo '
 
 '
 echo "Enabling x11 forwarding..."
@@ -144,9 +144,6 @@ ssh -X
 
 getFreeSurfer() {
 
-echo 'getFreeSurfer
-
-'
 cd ~/
 wget https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/6.0.0/freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz
 
@@ -160,9 +157,6 @@ sudo tar -C /usr/local -xzvf freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.t
 
 setupFreeSurfer() {
 
-echo 'setupFreeSurfer
-
-'
 export FREESURFER_HOME=/usr/local/freesurfer
 source $FREESURFER_HOME/SetUpFreeSurfer.sh
 
@@ -172,10 +166,13 @@ source $FREESURFER_HOME/SetUpFreeSurfer.sh
 
 licenseKeyCheck() {
 
-echo 'licenseKeyCheck
+echo '
 
 '
 echo 'A license key must be obtained to make the FreeSurfer tools operational'
+echo '
+
+'
 read -p 'Have you obtained a license key? y/n? :' licenseKeyResponse
 
 if [ $licenseKeyResponse == "y" ] ; then
@@ -191,12 +188,15 @@ fi
 
 licenseFileMaker() {
 
-echo 'licenseFileMaker
+echo '
 
 '
 echo 'License key must be saved to a file called license.txt in the directory pointed to by the $FREESURFER_HOME environment variable.
 checking if license.txt exists...'
 
+echo '
+
+'
 test -f $FREESURFER_HOME/license.txt &&
 { echo "license.txt exists."; licenseFileResponse="y"; } ||
 { echo "license.txt does not exist, creating file..."; licenseFileResponse="n"; }
@@ -206,6 +206,9 @@ if [ $licenseFileResponse == "n" ]; then
         sudo touch license.txt
 fi
 
+echo '
+
+'
 cat << _EOF_
 
 Menu: Have you copied the license key to the license.txt?
@@ -216,6 +219,9 @@ Please press the number of your choice:
         2 - No, I still need to copy and paste the license key into the file.
 _EOF_
 
+echo '
+
+'
 read -n 1 -s choice;
         case $choice in
                 1) echo "Then you are all done.";;
@@ -230,18 +236,20 @@ read -n 1 -s choice;
 
 setupExampleEnvironment() {
 
-echo 'setupExampleEnvironment
+echo '
 
 '
 echo 'For installation examples to run correctly due to write permissions on original files, subject data must be copied
  to new directory'
-echo 'Creating new directory called test_subjects in home directory...'
+echo '
+Creating new directory called test_subjects in home directory...'
 cd ~/
 mkdir test_subjects
 
 # FreeSurfer requires an environment called SUBJECTS_DIR , set the SUBJECTS_DIR environment variable to the path of
 # test_subjects
-echo 'FreeSurfer requires an environment called SUBJECTS_DIR, setting SUBJECTS_DIR  environment variable test_subjects
+echo '
+FreeSurfer requires an environment called SUBJECTS_DIR, setting SUBJECTS_DIR  environment variable test_subjects
 path...'
 export SUBJECTS_DIR=~/test_subjects
 
@@ -251,26 +259,25 @@ export SUBJECTS_DIR=~/test_subjects
 
 getMissingLibrairies() {
 
-echo 'getMissingLibrairies
-
-'
 cd ~/
 wget http://archive.ubuntu.com/ubuntu/pool/main/libp/libpng/libpng_1.2.54.orig.tar.xz
 
-sudo tar xvf  libpng_1.2.54.orig.tar.xz
+tar xvf  libpng_1.2.54.orig.tar.xz
 
 cd libpng-1.2.54
 ./autogen.sh
 ./configure
 make -j8
 sudo make install
-
+sudo ldconfig
 }
 
 ## Execution
 
-echo '(WSL) FreeSurfer Installer -- Debian/Ubuntu Windows Subsystem for Linux FreeSurfer Installation Tool
-Automated installer to install and run FreeSurfer on Windows Subsystem for Linux by use of an X server.'
+echo '(WSL) FreeSurfer Installer -- Debian/Ubuntu Windows Subsystem for Linux FreeSurfer Installation Tool.
+Automated installer to install and run FreeSurfer on Windows Subsystem for Linux by use of an X server. (version 1.0)
+
+'
 
 xmingCheck
 
@@ -298,7 +305,8 @@ licenseKeyCheck
 setupExampleEnvironment
 getMissingLibrairies
 
-echo 'Installation complete'
+echo '
+Installation complete'
 
 enableX11Forwarding
 
