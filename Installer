@@ -274,7 +274,9 @@ sudo ldconfig
 
 ## Execution
 
-echo '(WSL) FreeSurfer Installer -- Debian/Ubuntu Windows Subsystem for Linux FreeSurfer Installation Tool.
+echo '
+
+(WSL) FreeSurfer Installer -- Debian/Ubuntu Windows Subsystem for Linux FreeSurfer Installation Tool.
 Automated installer to install and run FreeSurfer on Windows Subsystem for Linux by use of an X server. (version 1.0)
 
 '
@@ -306,7 +308,8 @@ setupExampleEnvironment
 getMissingLibrairies
 
 echo '
-Installation complete'
+
+Installation complete.'
 
 enableX11Forwarding
 
