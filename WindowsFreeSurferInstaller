@@ -12,8 +12,11 @@ set -e
 
 xmingCheck() {
 
-echo 'Xming X server must be downloaded and installed on your windows system to begin installer'
-read -p 'Have you downloaded Xming X server? y/n? :' xmingResponse
+
+echo 'Xming X server must be downloaded, installed and running on your windows system to begin installer.
+
+'
+read -p 'Are you running Xming X server? y/n? :' xmingResponse
 
 }
 
@@ -21,6 +24,9 @@ read -p 'Have you downloaded Xming X server? y/n? :' xmingResponse
 
 update()  {
 
+echo '
+
+'
 echo "Starting system update..."
 sudo apt update && sudo apt upgrade
 
@@ -30,8 +36,11 @@ sudo apt update && sudo apt upgrade
 
 libInstaller() {
 
+echo '
+
+'
 echo "Installing requried librairies"
-sudo apt-get install tcsh libfreetype6 libglu1-mesa libfontconfig1 libxrender1 libsm6 libxt6
+sudo apt-get install tcsh libfreetype6 libglu1-mesa libfontconfig1 libxrender1 libsm6 libxt6 libtool autoconf build-essential pkg-config automake zlib1g-dev libjpeg62-dev
 
 }
 
@@ -43,6 +52,9 @@ sudo apt-get install tcsh libfreetype6 libglu1-mesa libfontconfig1 libxrender1 l
 
 setDisplay() {
 
+echo '
+
+'
 echo "Setting the DISPLAY environment variable so it instructs the X client which X server to connect to by default."
 export DISPLAY=localhost:0.0
 
@@ -55,6 +67,9 @@ export DISPLAY=localhost:0.0
 
 enableXServer() {
 
+echo '
+
+'
 echo "Installing commands SSH, XAUTH and XORG to initialise X server and ssh -X command..."
 sudo apt install ssh xauth xorg
 
@@ -117,6 +132,9 @@ Host *
 
 enableX11Forwarding() {
 
+echo '
+
+'
 echo "Enabling x11 forwarding..."
 ssh -X
 
@@ -127,7 +145,7 @@ ssh -X
 getFreeSurfer() {
 
 cd ~/
-#wget https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/6.0.0/freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz
+wget https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/6.0.0/freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz
 
 # Install FreeSurfer
 sudo tar -C /usr/local -xzvf freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz
@@ -148,7 +166,13 @@ source $FREESURFER_HOME/SetUpFreeSurfer.sh
 
 licenseKeyCheck() {
 
+echo '
+
+'
 echo 'A license key must be obtained to make the FreeSurfer tools operational'
+echo '
+
+'
 read -p 'Have you obtained a license key? y/n? :' licenseKeyResponse
 
 if [ $licenseKeyResponse == "y" ] ; then
@@ -164,9 +188,15 @@ fi
 
 licenseFileMaker() {
 
+echo '
+
+'
 echo 'License key must be saved to a file called license.txt in the directory pointed to by the $FREESURFER_HOME environment variable.
 checking if license.txt exists...'
 
+echo '
+
+'
 test -f $FREESURFER_HOME/license.txt &&
 { echo "license.txt exists."; licenseFileResponse="y"; } ||
 { echo "license.txt does not exist, creating file..."; licenseFileResponse="n"; }
@@ -176,6 +206,9 @@ if [ $licenseFileResponse == "n" ]; then
         sudo touch license.txt
 fi
 
+echo '
+
+'
 cat << _EOF_
 
 Menu: Have you copied the license key to the license.txt?
@@ -186,11 +219,14 @@ Please press the number of your choice:
         2 - No, I still need to copy and paste the license key into the file.
 _EOF_
 
+echo '
+
+'
 read -n 1 -s choice;
         case $choice in
                 1) echo "Then you are all done.";;
                 2) echo "Please open your emails, then open the license.txt file before copying (Ctrl+C) and pasting the contents (Ctrl+Shift+V) into the command line.";
-                   echo "-- Pressing Ctrl+d when you are done --"; cat >> license.txt; echo "You are all done";;
+                   echo "-- Pressing Ctrl+d when you are done --"; sudo bash -c 'cat >> license.txt'; echo "You are all done";;
                 *) echo "Incorrect input";;
         esac
 
@@ -200,27 +236,28 @@ read -n 1 -s choice;
 
 setupExampleEnvironment() {
 
+echo '
+
+'
 echo 'For installation examples to run correctly due to write permissions on original files, subject data must be copied
  to new directory'
-echo 'Creating new directory called test_subjects in home directory...'
+echo '
+Creating new directory called test_subjects in home directory...'
 cd ~/
 mkdir test_subjects
 
 # FreeSurfer requires an environment called SUBJECTS_DIR , set the SUBJECTS_DIR environment variable to the path of
 # test_subjects
-echo 'FreeSurfer requires an environment called SUBJECTS_DIR, setting SUBJECTS_DIR  environment variable test_subjects
+echo '
+FreeSurfer requires an environment called SUBJECTS_DIR, setting SUBJECTS_DIR  environment variable test_subjects
 path...'
-export SUBJECTS_DIR=~/test_subjects
+#export SUBJECTS_DIR=~/test_subjects
 
 }
 
 #10. For freeview to work correctly, libraries no longer included by default in the newer versions of Ubuntu must be installed.
 
 getMissingLibrairies() {
-
-sudo apt-get update
-sudo apt-get upgrade
-sudo apt-get install libtool autoconf build-essential pkg-config automake zlib1g-dev
 
 cd ~/
 wget http://archive.ubuntu.com/ubuntu/pool/main/libp/libpng/libpng_1.2.54.orig.tar.xz
@@ -232,13 +269,34 @@ cd libpng-1.2.54
 ./configure
 make -j8
 sudo make install
+sudo ldconfig
 
 }
+#11. Testing freeview
 
+freeviewTest() {
+
+cd $SUBJECTS_DIR
+freeview -v \
+    bert/mri/T1.mgz \
+    bert/mri/wm.mgz \
+    bert/mri/brainmask.mgz \
+    bert/mri/aseg.mgz:colormap=lut:opacity=0.2 \
+    -f \
+    bert/surf/lh.white:edgecolor=blue \
+    bert/surf/lh.pial:edgecolor=red \
+    bert/surf/rh.white:edgecolor=blue \
+    bert/surf/rh.pial:edgecolor=red
+    
+    }
 ## Execution
 
-echo '(WSL) FreeSurfer Installer -- Debian/Ubuntu Windows Subsystem for Linux FreeSurfer Installation Tool
-Automated installer to install and run FreeSurfer on Windows Subsystem for Linux by use of an X server.'
+echo '
+
+(WSL) FreeSurfer Installer -- Debian/Ubuntu Windows Subsystem for Linux FreeSurfer Installation Tool.
+Automated installer to install and run FreeSurfer on Windows Subsystem for Linux by use of an X server. (version 1.0)
+
+'
 
 xmingCheck
 
@@ -255,7 +313,6 @@ echo 'DISPLAY environment variable instructs the X client which X server to conn
 setDisplay
 
 echo 'In the Ubuntu Bash terminal under Windows, it is also possible to get the GUI environment from a remote server like in Linux, with command ssh -X'
-echo 'In the Ubuntu Bash terminal under Windows, it is also possible to get the GUI environment from a remote server like in Linux, with command ssh -X'
 
 enableXServer
 getFreeSurfer
@@ -267,8 +324,14 @@ licenseKeyCheck
 setupExampleEnvironment
 getMissingLibrairies
 
-echo 'Installation complete'
+echo '
+
+Installation complete.'
 
 enableX11Forwarding
 
-exit
+echo '
+
+Testing freeview...'
+freeviewTest
+
