@@ -13,10 +13,10 @@ set -e
 xmingCheck() {
 
 
-echo 'Xming X server must be downloaded and installed on your windows system to begin installer
+echo 'Xming X server must be downloaded, installed and running on your windows system to begin installer.
 
 '
-read -p 'Have you downloaded Xming X server? y/n? :' xmingResponse
+read -p 'Are you running Xming X server? y/n? :' xmingResponse
 
 }
 
@@ -40,7 +40,7 @@ echo '
 
 '
 echo "Installing requried librairies"
-sudo apt-get install tcsh libfreetype6 libglu1-mesa libfontconfig1 libxrender1 libsm6 libxt6 libtool autoconf build-essential pkg-config automake zlib1g-dev
+sudo apt-get install tcsh libfreetype6 libglu1-mesa libfontconfig1 libxrender1 libsm6 libxt6 libtool autoconf build-essential pkg-config automake zlib1g-dev libjpeg62-dev
 
 }
 
@@ -226,7 +226,7 @@ read -n 1 -s choice;
         case $choice in
                 1) echo "Then you are all done.";;
                 2) echo "Please open your emails, then open the license.txt file before copying (Ctrl+C) and pasting the contents (Ctrl+Shift+V) into the command line.";
-                   echo "-- Pressing Ctrl+d when you are done --"; cat | sudo tee -a license.txt; echo "You are all done";;
+                   echo "-- Pressing Ctrl+d when you are done --"; sudo bash -c 'cat >> license.txt'; echo "You are all done";;
                 *) echo "Incorrect input";;
         esac
 
@@ -270,8 +270,25 @@ cd libpng-1.2.54
 make -j8
 sudo make install
 sudo ldconfig
-}
 
+}
+#11. Testing freeview
+
+freeviewTest() {
+
+cd $SUBJECTS_DIR
+freeview -v \
+    bert/mri/T1.mgz \
+    bert/mri/wm.mgz \
+    bert/mri/brainmask.mgz \
+    bert/mri/aseg.mgz:colormap=lut:opacity=0.2 \
+    -f \
+    bert/surf/lh.white:edgecolor=blue \
+    bert/surf/lh.pial:edgecolor=red \
+    bert/surf/rh.white:edgecolor=blue \
+    bert/surf/rh.pial:edgecolor=red
+    
+    }
 ## Execution
 
 echo '
@@ -313,4 +330,8 @@ Installation complete.'
 
 enableX11Forwarding
 
-exit
+echo '
+
+Testing freeview...'
+freeviewTest
+
