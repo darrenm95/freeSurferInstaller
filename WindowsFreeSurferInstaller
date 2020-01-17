@@ -251,7 +251,7 @@ mkdir test_subjects
 echo '
 FreeSurfer requires an environment called SUBJECTS_DIR, setting SUBJECTS_DIR  environment variable test_subjects
 path...'
-export SUBJECTS_DIR=~/test_subjects
+#export SUBJECTS_DIR=~/test_subjects
 
 }
 
