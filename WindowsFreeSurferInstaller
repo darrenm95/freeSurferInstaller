@@ -99,7 +99,7 @@ Host *
     Port 22
     Protocol 2
     GSSAPIDelegateCredentials no
-      XauthLocation /usr/bin/xauth
+    XauthLocation /usr/bin/xauth
     SendEnv LANG LC_*
     HashKnownHosts yes
     GSSAPIAuthentication yes
@@ -327,8 +327,6 @@ getMissingLibrairies
 echo '
 
 Installation complete.'
-
-enableX11Forwarding
 
 echo '
 
